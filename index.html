@@ -1,87 +1,83 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>GMod Loading Screen - Snake</title>
-    <style>
-        body { background: #1a1a1a; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; color: white; font-family: sans-serif; }
-        canvas { border: 5px solid #555; background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        #ui { position: absolute; top: 20px; text-align: center; }
-    </style>
-</head>
-<body>
-    <div id="ui">
-        <h1>SNAKE - USE ARROW KEYS</h1>
-        <p id="score">Score: 0</p>
-    </div>
-    <canvas id="snake" width="400" height="400"></canvas>
+<script>
+    const canvas = document.getElementById("snake");
+    const ctx = canvas.getContext("2d");
+    const scoreElement = document.getElementById("score");
 
-    <script>
-        const canvas = document.getElementById("snake");
-        const ctx = canvas.getContext("2d");
-        const scoreElement = document.getElementById("score");
+    const box = 20;
+    let snake, food, score, d, gameInterval;
 
-        let box = 20;
-        let snake = [{x: 9 * box, y: 10 * box}];
-        let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-        let score = 0;
-        let d;
+    // Initialize/Restart Game
+    function resetGame() {
+        snake = [{x: 9 * box, y: 10 * box}];
+        food = { 
+            x: Math.floor(Math.random() * 19 + 1) * box, 
+            y: Math.floor(Math.random() * 19 + 1) * box 
+        };
+        score = 0;
+        d = null; // Wait for player input to start
+        scoreElement.innerHTML = "Score: 0";
+        
+        if (gameInterval) clearInterval(gameInterval);
+        gameInterval = setInterval(draw, 100); // Start the loop
+    }
 
-        document.addEventListener("keydown", direction);
-        function direction(event) {
-            if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
-            else if(event.keyCode == 38 && d != "DOWN") d = "UP";
-            else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
-            else if(event.keyCode == 40 && d != "UP") d = "DOWN";
+    document.addEventListener("keydown", direction);
+    function direction(event) {
+        if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+        else if(event.keyCode == 38 && d != "DOWN") d = "UP";
+        else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+        else if(event.keyCode == 40 && d != "UP") d = "DOWN";
+    }
+
+    function collision(head, array) {
+        for(let i = 0; i < array.length; i++) {
+            if(head.x == array[i].x && head.y == array[i].y) return true;
+        }
+        return false;
+    }
+
+    function draw() {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for(let i = 0; i < snake.length; i++) {
+            ctx.fillStyle = (i == 0) ? "green" : "lime";
+            ctx.fillRect(snake[i].x, snake[i].y, box, box);
         }
 
-        function draw() {
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "red";
+        ctx.fillRect(food.x, food.y, box, box);
 
-            for(let i = 0; i < snake.length; i++) {
-                ctx.fillStyle = (i == 0) ? "green" : "lime";
-                ctx.fillRect(snake[i].x, snake[i].y, box, box);
-            }
+        // Movement logic
+        let snakeX = snake[0].x;
+        let snakeY = snake[0].y;
 
-            ctx.fillStyle = "red";
-            ctx.fillRect(food.x, food.y, box, box);
+        if( d == "LEFT") snakeX -= box;
+        if( d == "UP") snakeY -= box;
+        if( d == "RIGHT") snakeX += box;
+        if( d == "DOWN") snakeY += box;
 
-            let snakeX = snake[0].x;
-            let snakeY = snake[0].y;
-
-            if( d == "LEFT") snakeX -= box;
-            if( d == "UP") snakeY -= box;
-            if( d == "RIGHT") snakeX += box;
-            if( d == "DOWN") snakeY += box;
-
-            if(snakeX == food.x && snakeY == food.y) {
-                score++;
-                scoreElement.innerHTML = "Score: " + score;
-                food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-            } else {
-                snake.pop();
-            }
-
-            let newHead = { x: snakeX, y: snakeY };
-
-            if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
-                snake = [{x: 9 * box, y: 10 * box}];
-                score = 0;
-                scoreElement.innerHTML = "Score: 0";
-                d = null;
-            }
-
-            snake.unshift(newHead);
+        if(snakeX == food.x && snakeY == food.y) {
+            score++;
+            scoreElement.innerHTML = "Score: " + score;
+            food = { 
+                x: Math.floor(Math.random() * 19 + 1) * box, 
+                y: Math.floor(Math.random() * 19 + 1) * box 
+            };
+        } else if (d) {
+            snake.pop(); // Only move if a direction is set
         }
 
-        function collision(head, array) {
-            for(let i = 0; i < array.length; i++) {
-                if(head.x == array[i].x && head.y == array[i].y) return true;
-            }
-            return false;
+        let newHead = { x: snakeX, y: snakeY };
+
+        // Death Conditions: Wall or Self-Collision
+        if(d && (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake))) {
+            resetGame(); // Fully restart instead of stopping
+            return;
         }
 
-        setInterval(draw, 100);
-    </script>
-</body>
-</html>
+        if (d) snake.unshift(newHead);
+    }
+
+    resetGame(); // Start the first game
+</script>
