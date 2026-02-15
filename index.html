@@ -6,27 +6,28 @@
     const box = 20;
     let snake, food, score, d, gameInterval;
 
-    // Initialize/Restart Game
     function resetGame() {
-        snake = [{x: 9 * box, y: 10 * box}];
+        // Reset snake to middle of screen
+        snake = [{x: 10 * box, y: 10 * box}];
         food = { 
-            x: Math.floor(Math.random() * 19 + 1) * box, 
-            y: Math.floor(Math.random() * 19 + 1) * box 
+            x: Math.floor(Math.random() * 19) * box, 
+            y: Math.floor(Math.random() * 19) * box 
         };
         score = 0;
-        d = null; // Wait for player input to start
+        d = null; // Reset direction so it stays still until you press a key
         scoreElement.innerHTML = "Score: 0";
         
         if (gameInterval) clearInterval(gameInterval);
-        gameInterval = setInterval(draw, 100); // Start the loop
+        gameInterval = setInterval(draw, 100);
     }
 
     document.addEventListener("keydown", direction);
     function direction(event) {
-        if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
-        else if(event.keyCode == 38 && d != "DOWN") d = "UP";
-        else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
-        else if(event.keyCode == 40 && d != "UP") d = "DOWN";
+        let key = event.keyCode;
+        if(key == 37 && d != "RIGHT") d = "LEFT";
+        else if(key == 38 && d != "DOWN") d = "UP";
+        else if(key == 39 && d != "LEFT") d = "RIGHT";
+        else if(key == 40 && d != "UP") d = "DOWN";
     }
 
     function collision(head, array) {
@@ -41,14 +42,16 @@
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         for(let i = 0; i < snake.length; i++) {
-            ctx.fillStyle = (i == 0) ? "green" : "lime";
+            ctx.fillStyle = (i == 0) ? "#00FF00" : "#008800"; // Bright green head
             ctx.fillRect(snake[i].x, snake[i].y, box, box);
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(snake[i].x, snake[i].y, box, box);
         }
 
         ctx.fillStyle = "red";
         ctx.fillRect(food.x, food.y, box, box);
 
-        // Movement logic
+        // Fixed: Use snake[0] to get the current head position
         let snakeX = snake[0].x;
         let snakeY = snake[0].y;
 
@@ -57,27 +60,31 @@
         if( d == "RIGHT") snakeX += box;
         if( d == "DOWN") snakeY += box;
 
-        if(snakeX == food.x && snakeY == food.y) {
-            score++;
-            scoreElement.innerHTML = "Score: " + score;
-            food = { 
-                x: Math.floor(Math.random() * 19 + 1) * box, 
-                y: Math.floor(Math.random() * 19 + 1) * box 
-            };
-        } else if (d) {
-            snake.pop(); // Only move if a direction is set
-        }
-
         let newHead = { x: snakeX, y: snakeY };
 
-        // Death Conditions: Wall or Self-Collision
-        if(d && (snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake))) {
-            resetGame(); // Fully restart instead of stopping
-            return;
-        }
+        // Check for collisions ONLY if the snake is moving
+        if(d) {
+            if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
+                // Game Over - Flash screen red and reset
+                ctx.fillStyle = "rgba(255,0,0,0.5)";
+                ctx.fillRect(0,0,canvas.width, canvas.height);
+                setTimeout(resetGame, 100); 
+                return;
+            }
 
-        if (d) snake.unshift(newHead);
+            if(snakeX == food.x && snakeY == food.y) {
+                score++;
+                scoreElement.innerHTML = "Score: " + score;
+                food = { 
+                    x: Math.floor(Math.random() * 19) * box, 
+                    y: Math.floor(Math.random() * 19) * box 
+                };
+            } else {
+                snake.pop();
+            }
+            snake.unshift(newHead);
+        }
     }
 
-    resetGame(); // Start the first game
+    resetGame();
 </script>
