@@ -52,16 +52,15 @@
             50% { opacity: 1; transform: scale(1.02); }
         }
 
-        /* MOTD Box Section */
         .motd-container {
             position: absolute;
             left: 50px;
-            top: 200px;
-            width: 300px;
-            background: rgba(0, 0, 0, 0.7);
+            top: 220px;
+            width: 320px;
+            background: rgba(0, 0, 0, 0.75);
             border-left: 4px solid #00FF00;
             padding: 20px;
-            z-index: 10;
+            z-index: 20;
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
         }
 
@@ -75,9 +74,9 @@
         }
 
         .motd-content {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #ddd;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #ffffff;
         }
 
         .footer {
@@ -129,13 +128,12 @@
     <div class="motd-container">
         <div class="motd-title">Message of the Day</div>
         <div class="motd-content">
-            
-            Oh I'm homigrading it, im grading it so hard <br><br>
+            Oh I'm homigrading it, im grading it so hard.
         </div>
     </div>
 
     <div class="footer">
-        <div class="status-text" id="status">SYNCING ADDONS...</div>
+        <div id="status" class="status-text">SYNCING ADDONS...</div>
         <div class="progress-container">
             <div id="progress-bar"></div>
         </div>
