@@ -52,6 +52,34 @@
             50% { opacity: 1; transform: scale(1.02); }
         }
 
+        /* MOTD Box Section */
+        .motd-container {
+            position: absolute;
+            left: 50px;
+            top: 200px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.7);
+            border-left: 4px solid #00FF00;
+            padding: 20px;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .motd-title {
+            color: #00FF00;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .motd-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #ddd;
+        }
+
         .footer {
             position: absolute;
             bottom: 150px;
@@ -96,6 +124,15 @@
 
     <div class="header-container">
         <h1>homigrading my grad</h1>
+    </div>
+
+    <div class="motd-container">
+        <div class="motd-title">Message of the Day</div>
+        <div class="motd-content">
+            Welcome to the server! <br><br>
+            Please follow the rules and respect other players. Join our Discord for updates and support. <br><br>
+            <b>Enjoy your stay!</b>
+        </div>
     </div>
 
     <div class="footer">
