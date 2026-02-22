@@ -54,9 +54,9 @@
         .footer {
             position: absolute;
             bottom: 80px;
-            left: 20%;
-            right: 20%;
-            width: 60%;
+            left: 25%;
+            right: 25%;
+            width: 50%;
             z-index: 10;
             text-align: center;
         }
@@ -80,11 +80,11 @@
         }
 
         #progress-bar {
-            width: 5%;
+            width: 0%;
             height: 100%;
             background: #00FF00;
             box-shadow: 0 0 15px #00FF00;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.4s linear;
         }
     </style>
 </head>
@@ -98,7 +98,7 @@
     </div>
 
     <div class="footer">
-        <div class="status-text" id="status">INITIALIZING...</div>
+        <div class="status-text" id="status">PREPARING...</div>
         <div class="progress-container">
             <div id="progress-bar"></div>
         </div>
@@ -115,13 +115,14 @@
         const slideshow = document.getElementById('slideshow');
         const progressBar = document.getElementById('progress-bar');
         const statusText = document.getElementById('status');
+        
+        let currentPct = 0;
 
         function nextImage() {
             let newIndex;
             do {
                 newIndex = Math.floor(Math.random() * images.length);
             } while (newIndex === lastIndex && images.length > 1);
-            
             lastIndex = newIndex;
             slideshow.style.backgroundImage = `url('${images[newIndex]}')`;
         }
@@ -129,39 +130,39 @@
         nextImage();
         setInterval(nextImage, 15000);
 
-        let totalFiles = 0;
-        let filesNeeded = 0;
+        function setBar(pct) {
+            if (pct > currentPct) {
+                currentPct = pct;
+                progressBar.style.width = currentPct + "%";
+            }
+        }
+
+        setInterval(function() {
+            if (currentPct < 90) {
+                setBar(currentPct + 0.1);
+            }
+        }, 100);
 
         function SetFilesTotal(total) {
-            totalFiles = total;
+            if (total > 0) setBar(10);
         }
 
         function SetFilesNeeded(needed) {
-            filesNeeded = Math.max(0, needed);
-            updateProgress();
+            setBar(20);
         }
 
         function SetStatusChanged(status) {
             statusText.innerHTML = status;
-            if(status === "Workshop Complete") {
-                progressBar.style.width = "80%";
-            } else if (status === "Sending client info...") {
-                progressBar.style.width = "100%";
-            }
-        }
+            let s = status.toLowerCase();
 
-        function updateProgress() {
-            if (totalFiles > 0) {
-                let diff = totalFiles - filesNeeded;
-                let percentage = (diff / totalFiles) * 100;
-                progressBar.style.width = Math.max(5, percentage) + "%";
-            }
+            if (s.includes("workshop")) setBar(40);
+            if (s.includes("client info")) setBar(85);
+            if (s.includes("loading map")) setBar(95);
+            if (s.includes("starting")) setBar(100);
         }
 
         function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
-            if(totalFiles === 0) {
-                progressBar.style.width = "15%";
-            }
+            setBar(5);
         }
     </script>
 </body>
