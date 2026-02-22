@@ -1,101 +1,112 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>GMod Loading Screen</title>
+    <title>Homigrading My Grad</title>
     <style>
-        body { background: #1a1a1a; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; color: white; font-family: sans-serif; }
-        canvas { border: 5px solid #444; background: #000; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; }
+        body { 
+            background: #000; 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+
+        /* The scrolling background container */
+        #slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1.5s ease-in-out;
+        }
+
+        /* Dark overlay to make text pop */
+        #vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%);
+            z-index: 0;
+        }
+
+        /* Top Heading Container */
+        .header-container {
+            position: absolute;
+            top: 50px;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 4rem;
+            letter-spacing: 10px;
+            text-transform: uppercase;
+            margin: 0;
+            text-shadow: 0px 0px 20px rgba(255, 255, 255, 0.5);
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* Loading Bar (Bottom) */
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            left: 50px;
+            z-index: 10;
+        }
+
+        .status-text {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
-    <div id="overlay" onclick="startGame()">
-        <div>
-            <h1 style="color:#00FF00;">SNAKE</h1>
-            <p style="font-size: 24px;">CLICK ANYWHERE TO ENABLE KEYS</p>
-        </div>
+    <div id="slideshow"></div>
+    <div id="vignette"></div>
+
+    <div class="header-container">
+        <h1>homigrading my grad</h1>
     </div>
 
-    <div style="position: absolute; top: 20px; text-align: center; width: 100%;">
-        <h1 id="score">Score: 0</h1>
+    <div class="footer">
+        <div class="status-text" id="status">Loading resources...</div>
     </div>
-    <canvas id="snake" width="400" height="400"></canvas>
 
     <script>
-        var canvas = document.getElementById("snake");
-        var ctx = canvas.getContext("2d");
-        var scoreElement = document.getElementById("score");
-        var overlay = document.getElementById("overlay");
+        const images = [
+            "https://cdn.discordapp.com/attachments/1473494178511065119/1474972241623126027/20F6A41.JPG?ex=699bca72&is=699a78f2&hm=31dfc9468a6cbb0bdb934253452e7947ea1b7d11b940a66e9dc7f708e923802c&",
+            "https://cdn.discordapp.com/attachments/1473494178511065119/1475005074831839425/20BFB71.JPG?ex=699be906&is=699a9786&hm=e551ea459a32182435e3ab09fc3b94f89789507d966cd71cab256952db84ecf8&",
+            "https://cdn.discordapp.com/attachments/1473494178511065119/1475000159967641680/image.png?ex=699be472&is=699a92f2&hm=d979c5c3cd52bbba2c7c62f0b82ad5d6c46b742b562d9883277863e13578ef4d&"
+        ];
 
-        var box = 20;
-        var snake, food, score, d, gameInterval;
+        let currentIndex = 0;
+        const slideshow = document.getElementById('slideshow');
 
-        function startGame() {
-            overlay.style.display = 'none';
-            resetGame();
+        function nextImage() {
+            slideshow.style.backgroundImage = `url('${images[currentIndex]}')`;
+            currentIndex = (currentIndex + 1) % images.length;
         }
 
-        function resetGame() {
-            snake = [{x: 10 * box, y: 10 * box}];
-            food = { x: Math.floor(Math.random() * 19) * box, y: Math.floor(Math.random() * 19) * box };
-            score = 0;
-            d = null;
-            scoreElement.innerHTML = "Score: 0";
-            if (gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(draw, 100);
-        }
+        nextImage();
+        setInterval(nextImage, 15000);
 
-        document.addEventListener("keydown", function(e) {
-            var key = e.keyCode;
-            if((key == 37 || key == 65) && d != "RIGHT") d = "LEFT";
-            else if((key == 38 || key == 87) && d != "DOWN") d = "UP";
-            else if((key == 39 || key == 68) && d != "LEFT") d = "RIGHT";
-            else if((key == 40 || key == 83) && d != "UP") d = "DOWN";
-        });
-
-        function draw() {
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            for(var i = 0; i < snake.length; i++) {
-                ctx.fillStyle = (i == 0) ? "#00FF00" : "#008800";
-                ctx.fillRect(snake[i].x, snake[i].y, box, box);
-            }
-
-            ctx.fillStyle = "red";
-            ctx.fillRect(food.x, food.y, box, box);
-
-            if(!d) return;
-
-            var snakeX = snake[0].x;
-            var snakeY = snake[0].y;
-
-            if(d == "LEFT") snakeX -= box;
-            if(d == "UP") snakeY -= box;
-            if(d == "RIGHT") snakeX += box;
-            if(d == "DOWN") snakeY += box;
-
-            var newHead = { x: snakeX, y: snakeY };
-
-            // Wall/Self Collision
-            if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height) {
-                resetGame(); return;
-            }
-            for(var j = 0; j < snake.length; j++) {
-                if(newHead.x == snake[j].x && newHead.y == snake[j].y) {
-                    resetGame(); return;
-                }
-            }
-
-            if(snakeX == food.x && snakeY == food.y) {
-                score++;
-                scoreElement.innerHTML = "Score: " + score;
-                food = { x: Math.floor(Math.random() * 19) * box, y: Math.floor(Math.random() * 19) * box };
-            } else {
-                snake.pop();
-            }
-            snake.unshift(newHead);
+        function SetFilesNeeded(needed) {
+            document.getElementById('status').innerHTML = "Downloading " + needed + " files...";
         }
     </script>
 </body>
