@@ -53,38 +53,37 @@
 
         .footer {
             position: absolute;
-            bottom: 80px;
-            left: 25%;
-            right: 25%;
-            width: 50%;
+            bottom: 120px; /* Moved up to avoid default GMod bar */
+            left: 30%;
+            right: 30%;
+            width: 40%; /* Made narrower */
             z-index: 10;
-            text-align: center;
+            text-align: left;
         }
 
         .status-text {
-            font-size: 1rem;
-            color: #aaa;
-            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: #eee;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             font-weight: bold;
         }
 
         .progress-container {
             width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
+            height: 4px; /* Thinner bar */
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.1);
         }
 
         #progress-bar {
             width: 0%;
             height: 100%;
             background: #00FF00;
-            box-shadow: 0 0 15px #00FF00;
-            transition: width 0.4s linear;
+            box-shadow: 0 0 10px #00FF00;
+            transition: width 0.3s ease-out;
         }
     </style>
 </head>
@@ -97,8 +96,8 @@
         <h1>homigrading my grad</h1>
     </div>
 
-    <div class="footer">
-        <div class="status-text" id="status">PREPARING...</div>
+    <div class="footer" id="custom-footer">
+        <div class="status-text" id="status">GETTING READY...</div>
         <div class="progress-container">
             <div id="progress-bar"></div>
         </div>
@@ -115,6 +114,7 @@
         const slideshow = document.getElementById('slideshow');
         const progressBar = document.getElementById('progress-bar');
         const statusText = document.getElementById('status');
+        const footer = document.getElementById('custom-footer');
         
         let currentPct = 0;
 
@@ -128,7 +128,7 @@
         }
 
         nextImage();
-        setInterval(nextImage, 15000);
+        setInterval(nextImage, 12000);
 
         function setBar(pct) {
             if (pct > currentPct) {
@@ -138,31 +138,33 @@
         }
 
         setInterval(function() {
-            if (currentPct < 90) {
-                setBar(currentPct + 0.1);
+            if (currentPct < 95) {
+                setBar(currentPct + 0.05);
             }
         }, 100);
 
         function SetFilesTotal(total) {
-            if (total > 0) setBar(10);
+            if (total > 0) setBar(15);
         }
 
         function SetFilesNeeded(needed) {
-            setBar(20);
+            if (needed > 0) setBar(25);
         }
 
         function SetStatusChanged(status) {
             statusText.innerHTML = status;
             let s = status.toLowerCase();
 
-            if (s.includes("workshop")) setBar(40);
-            if (s.includes("client info")) setBar(85);
-            if (s.includes("loading map")) setBar(95);
+            if (s.includes("workshop")) setBar(45);
+            if (s.includes("client info")) {
+                setBar(90);
+                footer.style.opacity = "0.2"; 
+            }
             if (s.includes("starting")) setBar(100);
         }
 
         function GameDetails(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
-            setBar(5);
+            setBar(10);
         }
     </script>
 </body>
